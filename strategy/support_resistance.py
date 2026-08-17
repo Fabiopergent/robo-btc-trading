@@ -62,3 +62,73 @@ def create_zones(df):
         })
 
     return zones
+
+def merge_zones(zones):
+    """
+    Agrupa zonas do mesmo tipo que possuem
+    regiões sobrepostas ou muito próximas.
+    """
+
+    if not zones:
+        return []
+
+    merged = []
+
+    # Ordenar por preço
+    sorted_zones = sorted(
+        zones,
+        key=lambda zone: zone["price"]
+    )
+
+    for zone in sorted_zones:
+
+        # Primeira zona
+        if not merged:
+
+            merged.append(zone.copy())
+
+            continue
+
+        last = merged[-1]
+
+        # -----------------------------------------
+        # TIPOS DIFERENTES
+        # -----------------------------------------
+
+        if zone["type"] != last["type"]:
+
+            merged.append(zone.copy())
+
+            continue
+
+        # -----------------------------------------
+        # VERIFICAR SOBREPOSIÇÃO
+        # -----------------------------------------
+
+        overlaps = (
+            zone["lower"] <= last["upper"]
+            and
+            zone["upper"] >= last["lower"]
+        )
+
+        if overlaps:
+
+            last["lower"] = min(
+                last["lower"],
+                zone["lower"]
+            )
+
+            last["upper"] = max(
+                last["upper"],
+                zone["upper"]
+            )
+
+            last["price"] = (
+                last["lower"] + last["upper"]
+            ) / 2
+
+        else:
+
+            merged.append(zone.copy())
+
+    return merged

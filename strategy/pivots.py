@@ -98,3 +98,71 @@ def identify_pivots(df):
             result.loc[result.index[index], "pivot_low"] = True
 
     return result
+
+def confirm_pivot_3_candles(df, index):
+    """
+    Confirma um pivô utilizando 3 candles.
+
+    O candle central é comparado com o candle
+    anterior e o posterior.
+
+    Retorna:
+
+        PIVOT_HIGH
+        PIVOT_LOW
+        AMBIGUOUS
+        None
+    """
+
+    if index < 1:
+        return None
+
+    if index >= len(df) - 1:
+        return None
+
+    previous_candle = df.iloc[index - 1]
+    current_candle = df.iloc[index]
+    next_candle = df.iloc[index + 1]
+
+    # -----------------------------------------
+    # VERIFICAR PIVOT HIGH
+    # -----------------------------------------
+
+    is_pivot_high = (
+        current_candle["high"] > previous_candle["high"]
+        and
+        current_candle["high"] > next_candle["high"]
+    )
+
+    # -----------------------------------------
+    # VERIFICAR PIVOT LOW
+    # -----------------------------------------
+
+    is_pivot_low = (
+        current_candle["low"] < previous_candle["low"]
+        and
+        current_candle["low"] < next_candle["low"]
+    )
+
+    # -----------------------------------------
+    # AMBÍGUO
+    # -----------------------------------------
+
+    if is_pivot_high and is_pivot_low:
+        return "AMBIGUOUS"
+
+    # -----------------------------------------
+    # PIVOT HIGH
+    # -----------------------------------------
+
+    if is_pivot_high:
+        return "PIVOT_HIGH"
+
+    # -----------------------------------------
+    # PIVOT LOW
+    # -----------------------------------------
+
+    if is_pivot_low:
+        return "PIVOT_LOW"
+
+    return None
