@@ -688,10 +688,10 @@ Rompimento                 ✅
 Reteste                    ✅
 Price Action               ✅⏳
 Volume                     ✅
-Setup final                ⏳
-Position Size              ⏳
-Stop Loss                  ⏳
-Take Profit                ⏳
+Setup final                ✅
+Position Size              ✅
+Stop Loss                  ✅
+Take Profit                ✅
 Integração do risco        ⏳
 Backtest completo          ⏳
 Estatísticas               ⏳

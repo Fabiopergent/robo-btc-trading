@@ -1,5 +1,6 @@
 import pandas as pd
 
+from config import MIN_RR
 from strategy.structure import build_structure
 from strategy.trend import detect_trend
 from strategy.breakout import check_breakout
@@ -33,6 +34,14 @@ from strategy.volume import (
     is_volume_confirmed,
     is_confirmation_volume
 )
+
+from strategy.setup import evaluate_setup
+
+from risk.position_size import calculate_position_size
+
+from risk.stop_loss import calculate_stop_loss
+
+from risk.take_profit import calculate_take_profit
 
 
 # -----------------------------------------
@@ -507,3 +516,294 @@ for index in [20, 21, 22]:
         f"Ratio = {ratio:.2f}x | "
         f"Confirmação = {confirmed}"
     )
+
+print("\n===== TESTE DO SETUP =====\n")
+
+
+# -----------------------------------------
+# SETUP DE COMPRA
+# -----------------------------------------
+
+result_buy = evaluate_setup(
+    trend="UPTREND",
+    breakout="BREAKOUT_UP",
+    retest="RETEST_UP",
+    price_action="HAMMER",
+    volume_confirmed=True
+)
+
+print(
+    f"Setup de compra: {result_buy}"
+)
+
+
+# -----------------------------------------
+# SETUP DE VENDA
+# -----------------------------------------
+
+result_sell = evaluate_setup(
+    trend="DOWNTREND",
+    breakout="BREAKOUT_DOWN",
+    retest="RETEST_DOWN",
+    price_action="BEARISH_ENGULFING",
+    volume_confirmed=True
+)
+
+print(
+    f"Setup de venda: {result_sell}"
+)
+
+
+# -----------------------------------------
+# SETUP INCOMPLETO
+# -----------------------------------------
+
+result_no_trade = evaluate_setup(
+    trend="UPTREND",
+    breakout="BREAKOUT_UP",
+    retest="NO_RETEST",
+    price_action="HAMMER",
+    volume_confirmed=False
+)
+
+print(
+    f"Setup incompleto: {result_no_trade}"
+)
+
+print("\n===== TESTE SETUP SEM VOLUME =====\n")
+
+result_no_volume = evaluate_setup(
+    trend="UPTREND",
+    breakout="BREAKOUT_UP",
+    retest="RETEST_UP",
+    price_action="HAMMER",
+    volume_confirmed=False
+)
+
+print(
+    f"Setup sem volume: {result_no_volume}"
+)
+
+print("\n===== TESTE POSITION SIZE =====\n")
+
+
+capital = 100.00
+
+entry_price = 100.00
+
+stop_price = 98.00
+
+
+quantity = calculate_position_size(
+    capital,
+    entry_price,
+    stop_price
+)
+
+
+risk_amount = (
+    capital *
+    0.01
+)
+
+
+print(
+    f"Capital: R$ {capital:.2f}"
+)
+
+print(
+    f"Entrada: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Stop: R$ {stop_price:.2f}"
+)
+
+print(
+    f"Risco máximo: R$ {risk_amount:.2f}"
+)
+
+print(
+    f"Quantidade calculada: {quantity:.4f}"
+)
+
+print("\n===== TESTE POSITION SIZE — STOP PRÓXIMO =====\n")
+
+capital = 100.00
+
+entry_price = 100.00
+
+stop_price = 99.99
+
+
+quantity = calculate_position_size(
+    capital,
+    entry_price,
+    stop_price
+)
+
+
+print(
+    f"Entrada: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Stop: R$ {stop_price:.2f}"
+)
+
+print(
+    f"Quantidade calculada: {quantity:.4f}"
+)
+
+
+print("\n===== TESTE STOP LOSS =====\n")
+
+
+buy_zone = {
+    "type": "RESISTANCE",
+    "price": 110.00,
+    "lower": 109.67,
+    "upper": 110.33
+}
+
+
+entry_price = 113.00
+
+
+stop_buy = calculate_stop_loss(
+    entry_price,
+    buy_zone,
+    "BUY"
+)
+
+
+print(
+    f"Entrada BUY: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Região: "
+    f"{buy_zone['lower']:.2f} "
+    f"até "
+    f"{buy_zone['upper']:.2f}"
+)
+
+print(
+    f"Stop Loss: R$ {stop_buy:.2f}"
+)
+
+print("\n===== TESTE STOP LOSS SELL =====\n")
+
+
+sell_zone = {
+    "type": "SUPPORT",
+    "price": 95.00,
+    "lower": 94.72,
+    "upper": 95.28
+}
+
+
+entry_price = 92.00
+
+
+stop_sell = calculate_stop_loss(
+    entry_price,
+    sell_zone,
+    "SELL"
+)
+
+
+print(
+    f"Entrada SELL: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Região: "
+    f"{sell_zone['lower']:.2f} "
+    f"até "
+    f"{sell_zone['upper']:.2f}"
+)
+
+print(
+    f"Stop Loss: R$ {stop_sell:.2f}"
+)
+
+print("\n===== TESTE TAKE PROFIT BUY =====\n")
+
+
+entry_price = 113.00
+
+stop_price = 109.67
+
+
+take_profit = calculate_take_profit(
+    entry_price,
+    stop_price,
+    "BUY"
+)
+
+
+risk_distance = abs(
+    entry_price - stop_price
+)
+
+
+print(
+    f"Entrada: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Stop: R$ {stop_price:.2f}"
+)
+
+print(
+    f"Risco: R$ {risk_distance:.2f}"
+)
+
+print(
+    f"R:R configurado: 1:{MIN_RR:.0f}"
+)
+
+print(
+    f"Take Profit: R$ {take_profit:.2f}"
+)
+
+print("\n===== TESTE TAKE PROFIT SELL =====\n")
+
+
+entry_price = 92.00
+
+stop_price = 95.28
+
+
+take_profit = calculate_take_profit(
+    entry_price,
+    stop_price,
+    "SELL"
+)
+
+
+risk_distance = abs(
+    entry_price - stop_price
+)
+
+
+print(
+    f"Entrada: R$ {entry_price:.2f}"
+)
+
+print(
+    f"Stop: R$ {stop_price:.2f}"
+)
+
+print(
+    f"Risco: R$ {risk_distance:.2f}"
+)
+
+print(
+    f"R:R configurado: 1:{MIN_RR:.0f}"
+)
+
+print(
+    f"Take Profit: R$ {take_profit:.2f}"
+)

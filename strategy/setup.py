@@ -2,7 +2,8 @@ def evaluate_setup(
     trend,
     breakout,
     retest,
-    price_action
+    price_action,
+    volume_confirmed
 ):
     """
     Avalia se existe um setup completo
@@ -31,7 +32,9 @@ def evaluate_setup(
                 ]
 
                 if price_action in bullish_patterns:
-                    return "BUY"
+
+                    if volume_confirmed:
+                        return "BUY"
 
     # -----------------------------------------
     # VENDA
@@ -48,7 +51,8 @@ def evaluate_setup(
                 ]
 
                 if price_action in bearish_patterns:
-                    return "SELL"
+                    if volume_confirmed:
+                        return "SELL"
 
     # -----------------------------------------
     # NENHUM SETUP
