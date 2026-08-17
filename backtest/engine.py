@@ -22,13 +22,21 @@ class BacktestEngine:
         entry_price,
         quantity,
         stop_price,
-        target_price
+        target_price,
+        direction
     ):
         """
         Abre uma posição simulada.
+
+        direction:
+            BUY
+            SELL
         """
 
         if self.has_position():
+            return False
+
+        if direction not in ["BUY", "SELL"]:
             return False
 
         self.position = {
@@ -39,7 +47,9 @@ class BacktestEngine:
 
             "stop": stop_price,
 
-            "target": target_price
+            "target": target_price,
+
+            "direction": direction
         }
 
         return True
@@ -60,9 +70,23 @@ class BacktestEngine:
 
         quantity = self.position["quantity"]
 
-        profit = (
-            exit_price - entry_price
-        ) * quantity
+        direction = self.position["direction"]
+
+        # -----------------------------------------
+        # CALCULAR RESULTADO
+        # -----------------------------------------
+
+        if direction == "BUY":
+
+            profit = (
+                exit_price - entry_price
+            ) * quantity
+
+        else:
+
+            profit = (
+                entry_price - exit_price
+            ) * quantity
 
         self.balance += profit
 
@@ -73,6 +97,8 @@ class BacktestEngine:
             "exit": exit_price,
 
             "quantity": quantity,
+
+            "direction": direction,
 
             "profit": profit,
 
@@ -98,32 +124,60 @@ class BacktestEngine:
 
         target = self.position["target"]
 
-        # -----------------------------------------
-        # STOP
-        # -----------------------------------------
-
-        if candle["low"] <= stop:
-
-            self.close_position(
-                stop,
-                "STOP"
-            )
-
-            return
+        direction = self.position["direction"]
 
         # -----------------------------------------
-        # ALVO
+        # BUY
         # -----------------------------------------
 
-        if candle["high"] >= target:
+        if direction == "BUY":
 
-            self.close_position(
-                target,
-                "TARGET"
-            )
+            # STOP
+            if candle["low"] <= stop:
 
-            return
-        
+                self.close_position(
+                    stop,
+                    "STOP"
+                )
+
+                return
+
+            # ALVO
+            if candle["high"] >= target:
+
+                self.close_position(
+                    target,
+                    "TARGET"
+                )
+
+                return
+
+        # -----------------------------------------
+        # SELL
+        # -----------------------------------------
+
+        elif direction == "SELL":
+
+            # STOP
+            if candle["high"] >= stop:
+
+                self.close_position(
+                    stop,
+                    "STOP"
+                )
+
+                return
+
+            # ALVO
+            if candle["low"] <= target:
+
+                self.close_position(
+                    target,
+                    "TARGET"
+                )
+
+                return
+
     def run(self, df):
         """
         Percorre os candles em ordem cronológica
@@ -132,4 +186,4 @@ class BacktestEngine:
 
         for index, candle in df.iterrows():
 
-            self.process_candle(candle)    
+            self.process_candle(candle)

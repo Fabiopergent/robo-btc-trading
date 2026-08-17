@@ -692,9 +692,10 @@ Setup final                ✅
 Position Size              ✅
 Stop Loss                  ✅
 Take Profit                ✅
-Integração do risco        ⏳
+Integração do risco        ✅
+Backtest Engine            ✅
+Estatísticas               ✅
 Backtest completo          ⏳
-Estatísticas               ⏳
 Simulação                  ⏳
 Integração Binance         ⏳
 

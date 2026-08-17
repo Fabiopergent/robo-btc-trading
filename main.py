@@ -43,6 +43,30 @@ from risk.stop_loss import calculate_stop_loss
 
 from risk.take_profit import calculate_take_profit
 
+from risk.risk_manager import calculate_trade_risk
+
+from backtest.statistics import (
+    total_trades,
+    winning_trades,
+    losing_trades,
+    total_profit,
+    win_rate
+)
+
+from backtest.statistics import (
+    total_trades,
+    winning_trades,
+    losing_trades,
+    total_profit,
+    win_rate,
+    profit_factor,
+    largest_win,
+    largest_loss,
+    average_profit
+)
+
+from backtest.engine import BacktestEngine
+
 
 # -----------------------------------------
 # DADOS DE TESTE
@@ -806,4 +830,410 @@ print(
 
 print(
     f"Take Profit: R$ {take_profit:.2f}"
+)
+
+print("\n===== TESTE INTEGRAÇÃO DO RISCO =====\n")
+
+
+capital = 100.00
+
+entry_price = 113.00
+
+zone = {
+    "type": "RESISTANCE",
+    "price": 110.00,
+    "lower": 109.67,
+    "upper": 110.33
+}
+
+
+trade = calculate_trade_risk(
+    capital,
+    entry_price,
+    zone,
+    "BUY"
+)
+
+
+print(
+    f"Direção: {trade['direction']}"
+)
+
+print(
+    f"Entrada: R$ {trade['entry']:.2f}"
+)
+
+print(
+    f"Stop Loss: R$ {trade['stop']:.2f}"
+)
+
+print(
+    f"Take Profit: R$ {trade['target']:.2f}"
+)
+
+print(
+    f"Quantidade: {trade['quantity']:.4f}"
+)
+
+print(
+    f"Risco financeiro: R$ {trade['risk_amount']:.2f}"
+)
+
+print(
+    f"Retorno potencial: R$ {trade['reward_amount']:.2f}"
+)
+
+print(
+    f"R:R: 1:{trade['risk_reward']:.2f}"
+)
+
+print("\n===== TESTE DE ESTATÍSTICAS =====\n")
+
+
+test_trades = [
+
+    {
+        "profit": 2.00
+    },
+
+    {
+        "profit": -1.00
+    },
+
+    {
+        "profit": 3.00
+    },
+
+    {
+        "profit": -0.50
+    },
+
+    {
+        "profit": 1.50
+    }
+]
+
+
+print(
+    f"Total de trades: "
+    f"{total_trades(test_trades)}"
+)
+
+print(
+    f"Trades vencedores: "
+    f"{winning_trades(test_trades)}"
+)
+
+print(
+    f"Trades perdedores: "
+    f"{losing_trades(test_trades)}"
+)
+
+print(
+    f"Lucro total: "
+    f"R$ {total_profit(test_trades):.2f}"
+)
+
+print(
+    f"Win Rate: "
+    f"{win_rate(test_trades):.2f}%"
+)
+
+print("\n===== TESTE DE ESTATÍSTICAS =====\n")
+
+print(
+    f"Profit Factor: "
+    f"{profit_factor(test_trades):.2f}"
+)
+
+print(
+    f"Maior ganho: "
+    f"R$ {largest_win(test_trades):.2f}"
+)
+
+print(
+    f"Maior perda: "
+    f"R$ {largest_loss(test_trades):.2f}"
+)
+
+print(
+    f"Média por operação: "
+    f"R$ {average_profit(test_trades):.2f}"
+)
+
+print("\n===== TESTE ENGINE BUY =====\n")
+
+engine = BacktestEngine(100.00)
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=95.00,
+    target_price=110.00,
+    direction="BUY"
+)
+
+engine.close_position(
+    exit_price=110.00,
+    reason="TARGET"
+)
+
+print(
+    f"Saldo final: "
+    f"R$ {engine.balance:.2f}"
+)
+
+print(
+    f"Lucro: "
+    f"R$ {engine.trades[0]['profit']:.2f}"
+)
+
+print(
+    f"Direção: "
+    f"{engine.trades[0]['direction']}"
+)
+
+print("\n===== TESTE ENGINE SELL =====\n")
+
+engine = BacktestEngine(100.00)
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=105.00,
+    target_price=90.00,
+    direction="SELL"
+)
+
+engine.close_position(
+    exit_price=90.00,
+    reason="TARGET"
+)
+
+print(
+    f"Saldo final: "
+    f"R$ {engine.balance:.2f}"
+)
+
+print(
+    f"Lucro: "
+    f"R$ {engine.trades[0]['profit']:.2f}"
+)
+
+print(
+    f"Direção: "
+    f"{engine.trades[0]['direction']}"
+)
+
+print("\n===== TESTE ENGINE BUY STOP =====\n")
+
+engine = BacktestEngine(100.00)
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=95.00,
+    target_price=110.00,
+    direction="BUY"
+)
+
+candle = {
+    "open": 98,
+    "high": 101,
+    "low": 95,
+    "close": 96
+}
+
+engine.process_candle(candle)
+
+print(
+    f"Saldo final: "
+    f"R$ {engine.balance:.2f}"
+)
+
+print(
+    f"Resultado: "
+    f"R$ {engine.trades[0]['profit']:.2f}"
+)
+
+print(
+    f"Motivo: "
+    f"{engine.trades[0]['reason']}"
+)
+
+print("\n===== TESTE ENGINE SELL STOP =====\n")
+
+engine = BacktestEngine(100.00)
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=105.00,
+    target_price=90.00,
+    direction="SELL"
+)
+
+candle = {
+    "open": 102,
+    "high": 105,
+    "low": 99,
+    "close": 104
+}
+
+engine.process_candle(candle)
+
+print(
+    f"Saldo final: "
+    f"R$ {engine.balance:.2f}"
+)
+
+print(
+    f"Resultado: "
+    f"R$ {engine.trades[0]['profit']:.2f}"
+)
+
+print(
+    f"Motivo: "
+    f"{engine.trades[0]['reason']}"
+)
+
+print("\n===== TESTE BACKTEST + ESTATÍSTICAS =====\n")
+
+
+engine = BacktestEngine(100.00)
+
+
+# =========================================
+# TRADE 1 - BUY / TARGET
+# =========================================
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=95.00,
+    target_price=110.00,
+    direction="BUY"
+)
+
+candle = {
+    "open": 105,
+    "high": 110,
+    "low": 104,
+    "close": 109
+}
+
+engine.process_candle(candle)
+
+
+# =========================================
+# TRADE 2 - BUY / STOP
+# =========================================
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=95.00,
+    target_price=110.00,
+    direction="BUY"
+)
+
+candle = {
+    "open": 98,
+    "high": 101,
+    "low": 95,
+    "close": 96
+}
+
+engine.process_candle(candle)
+
+
+# =========================================
+# TRADE 3 - SELL / TARGET
+# =========================================
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=105.00,
+    target_price=90.00,
+    direction="SELL"
+)
+
+candle = {
+    "open": 95,
+    "high": 96,
+    "low": 90,
+    "close": 91
+}
+
+engine.process_candle(candle)
+
+
+# =========================================
+# TRADE 4 - SELL / STOP
+# =========================================
+
+engine.open_position(
+    entry_price=100.00,
+    quantity=0.10,
+    stop_price=105.00,
+    target_price=90.00,
+    direction="SELL"
+)
+
+candle = {
+    "open": 102,
+    "high": 105,
+    "low": 99,
+    "close": 104
+}
+
+engine.process_candle(candle)
+
+
+# =========================================
+# RESULTADOS
+# =========================================
+
+trades = engine.trades
+
+
+print(
+    f"Saldo inicial: "
+    f"R$ {engine.initial_balance:.2f}"
+)
+
+print(
+    f"Saldo final: "
+    f"R$ {engine.balance:.2f}"
+)
+
+print(
+    f"Total de trades: "
+    f"{total_trades(trades)}"
+)
+
+print(
+    f"Trades vencedores: "
+    f"{winning_trades(trades)}"
+)
+
+print(
+    f"Trades perdedores: "
+    f"{losing_trades(trades)}"
+)
+
+print(
+    f"Lucro total: "
+    f"R$ {total_profit(trades):.2f}"
+)
+
+print(
+    f"Win Rate: "
+    f"{win_rate(trades):.2f}%"
+)
+
+print(
+    f"Profit Factor: "
+    f"{profit_factor(trades):.2f}"
 )
