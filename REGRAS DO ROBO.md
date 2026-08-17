@@ -548,3 +548,22 @@ Só então modificamos.
 Assim conseguimos manter o projeto modular e evitar que uma etapa apague ou duplique outra.
 
 Estado atual: estamos no breakout.py, e o próximo objetivo é testar a implementação que você já possui antes de modificá-la.
+
+
+📋 Regra adicionada ao projeto
+ENTRADA NO BACKTEST
+
+
+O setup é avaliado após o fechamento do candle.
+
+
+Se houver sinal BUY ou SELL,
+o sinal fica pendente.
+
+
+A posição é aberta na abertura
+do candle seguinte.
+
+
+O preço de entrada será o
+preço de abertura do próximo candle.

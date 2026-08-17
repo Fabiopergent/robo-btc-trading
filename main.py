@@ -1237,3 +1237,54 @@ print(
     f"Profit Factor: "
     f"{profit_factor(trades):.2f}"
 )
+
+print("\n===== TESTE ENTRADA NO CANDLE SEGUINTE =====\n")
+
+engine = BacktestEngine(100.00)
+
+# Candle 10:
+# Setup confirmado no fechamento.
+# NÃO entra ainda.
+
+signal_created = engine.set_signal(
+    direction="BUY",
+    quantity=0.10,
+    stop_price=95.00,
+    target_price=110.00
+)
+
+print(
+    f"Sinal criado: {signal_created}"
+)
+
+print(
+    f"Posição antes do próximo candle: "
+    f"{engine.has_position()}"
+)
+
+# Candle 11:
+# A entrada deve acontecer na abertura = 105.
+
+candle = {
+    "open": 105.00,
+    "high": 108.00,
+    "low": 104.00,
+    "close": 107.00
+}
+
+engine.execute_pending_signal(candle)
+
+print(
+    f"Posição após abertura: "
+    f"{engine.has_position()}"
+)
+
+print(
+    f"Preço de entrada: "
+    f"R$ {engine.position['entry']:.2f}"
+)
+
+print(
+    f"Direção: "
+    f"{engine.position['direction']}"
+)
