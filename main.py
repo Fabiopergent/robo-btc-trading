@@ -4,10 +4,34 @@ from strategy.structure import build_structure
 from strategy.trend import detect_trend
 from strategy.breakout import check_breakout
 from strategy.pivots import identify_pivots
+from strategy.retest import check_retest
 
 from strategy.support_resistance import (
     create_zones,
     merge_zones
+    )
+
+from strategy.price_action import (
+    candle_anatomy,
+    is_hammer,
+    is_inverted_hammer,
+    is_doji,
+    is_bullish_engulfing,
+    is_bearish_engulfing,
+    detect_candle_pattern
+)
+
+from strategy.volume import (
+    average_volume,
+    volume_ratio,
+    is_volume_confirmed
+)
+
+from strategy.volume import (
+    average_volume,
+    volume_ratio,
+    is_volume_confirmed,
+    is_confirmation_volume
 )
 
 
@@ -81,7 +105,58 @@ data = [
     {"open": 110, "high": 112, "low": 109, "close": 111, "volume": 1000},
 
     # 21 - ROMPIMENTO
-   {"open": 111, "high": 114, "low": 110, "close": 113, "volume": 3000},
+    {"open": 111, "high": 114, "low": 110, "close": 113, "volume": 3000},
+
+    # 22 - FALSO ROMPIMENTO
+{
+    "open": 109,
+    "high": 113,
+    "low": 108,
+    "close": 110,
+    "volume": 3000
+},
+
+    # 23
+    {"open": 109, "high": 110, "low": 106, "close": 108, "volume": 1000},
+
+    # 24
+    {"open": 108, "high": 109, "low": 105, "close": 106, "volume": 1000},
+
+    # 25
+    {"open": 106, "high": 107, "low": 102, "close": 103, "volume": 1000},
+
+    # 26
+    {"open": 103, "high": 104, "low": 99, "close": 100, "volume": 1000},
+
+    # 27
+    {"open": 100, "high": 101, "low": 96, "close": 97, "volume": 1000},
+
+    # 28
+    {"open": 97, "high": 98, "low": 94, "close": 95, "volume": 1000},
+
+    # 29
+    {"open": 95, "high": 96, "low": 92, "close": 93, "volume": 1000},
+
+    # 30 - ROMPIMENTO DO SUPORTE
+    {
+      "open": 93,
+      "high": 94,
+      "low": 90,
+      "close": 92,
+      "volume": 3000
+     },
+
+     # TESTE DE RETESTE
+
+{
+    "open": 113,
+    "high": 114,
+    "low": 110.00,
+    "close": 111.50,
+    "volume": 1800
+},
+
+
 
 ]
 
@@ -161,4 +236,274 @@ for index in range(len(df)):
                 f"Candle {index} | "
                 f"{zone['type']} | "
                 f"Resultado = {result}"
-            )    
+            )
+
+print("\n===== TESTE DE RETESTE =====\n")
+
+# -----------------------------------------
+# TESTE DE RETESTE
+# -----------------------------------------
+
+for zone in zones:
+
+    if zone["type"] == "RESISTANCE":
+
+        result = check_retest(
+            df,
+            21,
+            zone,
+            "BREAKOUT_UP"
+        )
+
+        print(
+            f"Zona {zone['price']:.2f} | "
+            f"Resultado = {result['result']} | "
+            f"Candle = {result['index']}"
+        )
+
+print("\n===== TESTE DE RETESTE SEM REJEIÇÃO =====\n")
+
+test_data = [
+
+    # Candle 0 = rompimento
+    {
+        "open": 110,
+        "high": 114,
+        "low": 109,
+        "close": 113,
+        "volume": 3000
+    },
+
+    # Candle 1 = volta para a zona,
+    # mas fecha dentro dela
+    {
+        "open": 112,
+        "high": 113,
+        "low": 109.80,
+        "close": 110.10,
+        "volume": 1000
+    }
+]
+
+test_df = pd.DataFrame(test_data)
+
+for zone in zones:
+
+    if zone["type"] == "RESISTANCE" and zone["price"] == 110:
+
+        result = check_retest(
+            test_df,
+            0,
+            zone,
+            "BREAKOUT_UP"
+        )
+
+        print(
+            f"Zona {zone['price']:.2f} | "
+            f"Resultado = {result['result']}"
+        )
+
+print("\n===== TESTE PRICE ACTION =====\n")
+
+# -----------------------------------------
+# CANDLE DE TESTE
+# -----------------------------------------
+
+candle = {
+    "open": 100,
+    "high": 105,
+    "low": 95,
+    "close": 100.5
+}
+
+anatomy = candle_anatomy(candle)
+
+print("Anatomia do candle:")
+
+print(
+    f"Corpo: {anatomy['body']}"
+)
+
+print(
+    f"Pavio superior: {anatomy['upper_wick']}"
+)
+
+print(
+    f"Pavio inferior: {anatomy['lower_wick']}"
+)
+
+print(
+    f"Range: {anatomy['range']}"
+)
+
+print("\nClassificação:")
+
+print(
+    f"Martelo: {is_hammer(candle)}"
+)
+
+print(
+    f"Martelo invertido: "
+    f"{is_inverted_hammer(candle)}"
+)
+
+print(
+    f"Doji: {is_doji(candle)}"
+)
+
+print("\n===== TESTE ENGOLFO DE ALTA =====\n")
+
+previous = {
+    "open": 105,
+    "high": 106,
+    "low": 99,
+    "close": 100
+}
+
+current = {
+    "open": 99,
+    "high": 108,
+    "low": 98,
+    "close": 107
+}
+
+print(
+    "Engolfo de alta:",
+    is_bullish_engulfing(previous, current)
+)
+
+print(
+    "Engolfo de baixa:",
+    is_bearish_engulfing(previous, current)
+)
+
+print(
+    "Padrão identificado:",
+    detect_candle_pattern(previous, current)
+)
+
+print("\n===== TESTE ENGOLFO DE BAIXA =====\n")
+
+previous = {
+    "open": 100,
+    "high": 106,
+    "low": 99,
+    "close": 105
+}
+
+current = {
+    "open": 106,
+    "high": 107,
+    "low": 97,
+    "close": 98
+}
+
+print(
+    "Engolfo de alta:",
+    is_bullish_engulfing(previous, current)
+)
+
+print(
+    "Engolfo de baixa:",
+    is_bearish_engulfing(previous, current)
+)
+
+print(
+    "Padrão identificado:",
+    detect_candle_pattern(previous, current)
+)
+
+print("\n===== TESTE DE VOLUME =====\n")
+
+volume_data = []
+
+# 20 candles com volume normal
+for i in range(20):
+
+    volume_data.append({
+        "open": 100,
+        "high": 101,
+        "low": 99,
+        "close": 100,
+        "volume": 1000
+    })
+
+
+# Candle 20 = volume normal
+volume_data.append({
+    "open": 100,
+    "high": 101,
+    "low": 99,
+    "close": 100,
+    "volume": 1000
+})
+
+
+# Candle 21 = volume forte
+volume_data.append({
+    "open": 100,
+    "high": 103,
+    "low": 99,
+    "close": 102,
+    "volume": 1500
+})
+
+
+# Candle 22 = volume muito forte
+volume_data.append({
+    "open": 100,
+    "high": 105,
+    "low": 98,
+    "close": 104,
+    "volume": 3000
+})
+
+
+volume_df = pd.DataFrame(volume_data)
+
+
+for index in [20, 21, 22]:
+
+    avg = average_volume(
+        volume_df,
+        index
+    )
+
+    ratio = volume_ratio(
+        volume_df,
+        index
+    )
+
+    confirmed = is_volume_confirmed(
+        volume_df,
+        index,
+        multiplier=1.5
+    )
+
+    print(
+        f"Candle {index} | "
+        f"Volume = {volume_df.iloc[index]['volume']} | "
+        f"Média = {avg:.2f} | "
+        f"Ratio = {ratio:.2f}x | "
+        f"Confirmado = {confirmed}"
+    )
+
+print("\n===== TESTE DE VOLUME DE CONFIRMAÇÃO =====\n")
+
+for index in [20, 21, 22]:
+
+    ratio = volume_ratio(
+        volume_df,
+        index
+    )
+
+    confirmed = is_confirmation_volume(
+        volume_df,
+        index
+    )
+
+    print(
+        f"Candle {index} | "
+        f"Ratio = {ratio:.2f}x | "
+        f"Confirmação = {confirmed}"
+    )

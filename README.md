@@ -678,16 +678,16 @@ UPTREND                    ✅
 DOWNTREND                  ✅
 SIDEWAYS                   ✅
 Suporte                    ✅
-Resistência               ✅
+Resistência                ✅
 Zonas de preço             ✅
 Agrupamento de zonas       ✅
 
 Ainda falta:
 
-Rompimento                 ⏳
-Reteste                    ⏳
-Price Action               ⏳
-Volume                     ⏳
+Rompimento                 ✅
+Reteste                    ✅
+Price Action               ✅⏳
+Volume                     ✅
 Setup final                ⏳
 Position Size              ⏳
 Stop Loss                  ⏳

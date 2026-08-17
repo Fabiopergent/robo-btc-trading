@@ -1,3 +1,9 @@
+from config import (
+    BREAKOUT_VOLUME_MULTIPLIER,
+    CONFIRMATION_VOLUME_MULTIPLIER
+)
+
+
 def average_volume(df, index, lookback=20):
     """
     Calcula o volume médio dos candles anteriores
@@ -18,13 +24,6 @@ def volume_ratio(df, index, lookback=20):
     """
     Calcula quantas vezes o volume atual é maior
     ou menor que a média anterior.
-
-    Exemplo:
-
-    volume atual = 2000
-    média = 1000
-
-    resultado = 2.0
     """
 
     avg = average_volume(
@@ -44,12 +43,12 @@ def volume_ratio(df, index, lookback=20):
 def is_volume_confirmed(
     df,
     index,
-    multiplier=1.5,
+    multiplier=BREAKOUT_VOLUME_MULTIPLIER,
     lookback=20
 ):
     """
-    Verifica se o volume atual é pelo menos
-    1.5x a média dos candles anteriores.
+    Verifica se o volume atual é suficiente
+    para confirmar um rompimento.
     """
 
     ratio = volume_ratio(
@@ -62,3 +61,25 @@ def is_volume_confirmed(
         return False
 
     return ratio >= multiplier
+
+
+def is_confirmation_volume(
+    df,
+    index,
+    lookback=20
+):
+    """
+    Verifica se o volume atual é suficiente
+    para confirmar a retomada após um reteste.
+    """
+
+    ratio = volume_ratio(
+        df,
+        index,
+        lookback
+    )
+
+    if ratio is None:
+        return False
+
+    return ratio >= CONFIRMATION_VOLUME_MULTIPLIER
